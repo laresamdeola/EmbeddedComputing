@@ -1,0 +1,124 @@
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+
+// Traffic Light Pin Configuration
+#define rledPin 9
+#define yledPin 8
+#define gledPin 6
+
+// OLED Configuration
+#define SCREEN_WIDTH 128  // OLED display width, in pixels
+#define SCREEN_HEIGHT 64  // OLED display height, in pixels
+
+// PIR Sensor Configuration
+#define pirPin 2
+int state = 0;
+// int pirState = LOW;
+
+// Declaration for SSD1306 display connected using I2C
+#define OLED_RESET -1  // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(rledPin, OUTPUT);
+  pinMode(yledPin, OUTPUT);
+  pinMode(gledPin, OUTPUT);
+
+  // set the pir input as an INPUT
+  pinMode(pirPin, INPUT);
+
+  Serial.begin(9600);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 ALLOCATION FAILED"));
+    for(;;)
+      ;
+  }
+
+  display.clearDisplay();
+
+}
+
+void loop() {
+
+  // read the state of the PIR sensor
+  state = digitalRead(pirPin);
+
+  if (state == HIGH) {
+    Serial.println("Pedestrians Detected");
+    pedestriansAtTrafficLigh
+    t();
+  } else {
+    Serial.println("No Pedestrians Detected");
+    noPedestriansAtTrafficLight();
+  }
+}
+
+void displayTrafficSign(String name, int time) {
+
+  // Display Text Settings
+  display.setTextSize(4);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 28);
+
+  display.println(name);
+  display.display();
+  delay(time);
+  display.clearDisplay();
+}
+
+void pedestriansAtTrafficLight() {
+  // if there are pedestrians at the traffic light, 
+  // extend the green light for pedestrians to 10secs
+  digitalWrite(gledPin, HIGH);
+  displayTrafficSign("Go", 10000);
+  delay(10000);
+  digitalWrite(gledPin, LOW);
+
+  // Short wait time of 1 second
+  digitalWrite(yledPin, HIGH);
+  displayTrafficSign("Wait", 1000);
+  delay(1000);
+  digitalWrite(yledPin, LOW);
+
+  // Shorter stop sign of 5 seconds
+  digitalWrite(rledPin, HIGH);
+  displayTrafficSign("Stop", 5000);
+  delay(5000);
+  digitalWrite(rledPin, LOW);
+}
+
+void noPedestriansAtTrafficLight() {
+
+  // put your main code here, to run repeatedly:
+  digitalWrite(gledPin, HIGH);
+  displayTrafficSign("Go", 5000);
+  delay(5000);
+  digitalWrite(gledPin, LOW);
+
+  digitalWrite(yledPin, HIGH);
+  displayTrafficSign("Wait", 3000);
+  delay(500);
+  digitalWrite(yledPin, LOW);
+  delay(500);
+
+  digitalWrite(yledPin, HIGH);
+  delay(500);
+  digitalWrite(yledPin, LOW);
+  delay(500);
+
+  digitalWrite(yledPin, HIGH);
+  delay(500);
+  digitalWrite(yledPin, LOW);
+  delay(500);
+
+  digitalWrite(rledPin, HIGH);
+  displayTrafficSign("Stop", 5000);
+  delay(5000);
+  digitalWrite(rledPin, LOW);
+}
